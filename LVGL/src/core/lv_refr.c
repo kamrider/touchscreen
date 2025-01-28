@@ -326,7 +326,9 @@ void _lv_disp_refr_timer(lv_timer_t * tmr)
         return;
     }
 
+#if LV_USE_PERF_MONITOR
     perf_monitor.refr_cnt++;
+#endif
     if(disp_refr->inv_p == 0) goto skip_render;
 
     lv_refr_join_area();
@@ -1267,9 +1269,10 @@ static void draw_buf_rotate(lv_area_t * area, lv_color_t * color_p)
             while(draw_buf->flushing) {
                 if(drv->wait_cb) drv->wait_cb(drv);
             }
+           #if LV_USE_PERF_MONITOR
             if(perf_monitor.in_render) perf_monitor.flush_time_in_render_sum += lv_tick_elaps(t);
             else perf_monitor.flush_time_not_in_render_sum += lv_tick_elaps(t);
-
+            #endif
             color_p += area_w * height;
             row += height;
         }
@@ -1298,8 +1301,10 @@ static void draw_buf_flush(lv_disp_t * disp)
         while(draw_buf->flushing) {
             if(disp_refr->driver->wait_cb) disp_refr->driver->wait_cb(disp_refr->driver);
         }
+        #if LV_USE_PERF_MONITOR
         if(perf_monitor.in_render) perf_monitor.flush_time_in_render_sum += lv_tick_elaps(t);
         else perf_monitor.flush_time_not_in_render_sum += lv_tick_elaps(t);
+        #endif
 
     }
 
